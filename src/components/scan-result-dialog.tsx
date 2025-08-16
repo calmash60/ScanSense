@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,13 @@ interface ScanResultDialogProps {
 
 const ScanResultDialog = ({ isOpen, onOpenChange, scan, isLoading }: ScanResultDialogProps) => {
   const { toast } = useToast();
+  const [isShareAvailable, setIsShareAvailable] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && navigator.share) {
+      setIsShareAvailable(true);
+    }
+  }, []);
 
   const handleCopy = () => {
     if (scan?.content) {
@@ -95,7 +103,7 @@ const ScanResultDialog = ({ isOpen, onOpenChange, scan, isLoading }: ScanResultD
           <Button variant="outline" onClick={handleCopy}>
               <Copy className="mr-2 h-4 w-4" /> Copy
           </Button>
-          {navigator.share && (
+          {isShareAvailable && (
               <Button variant="outline" onClick={handleShare}>
                   <Share2 className="mr-2 h-4 w-4" /> Share
               </Button>
