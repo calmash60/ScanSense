@@ -1,5 +1,2 @@
-# Firebase Studio
-
-This is a NextJS starter in Firebase Studio.
-
-To get started, take a look at src/app/page.tsx.
+# ScanSense
+This is a QR code scanner app that uses gemini to scan QR codes and firebase for a backend
