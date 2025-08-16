@@ -2,10 +2,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { QrCode, LogIn, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import Image from 'next/image';
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -22,7 +21,7 @@ export default function WelcomePage() {
     }, [user, loading, router]);
 
 
-    if (loading || user) {
+    if (loading || (!loading && user)) {
         return (
           <div className="flex items-center justify-center min-h-screen">
             <div className="flex items-center space-x-2">
