@@ -26,18 +26,15 @@ export default function Home() {
   const { toast } = useToast();
 
   useEffect(() => {
+    let stream: MediaStream;
     const getCameraPermission = async () => {
       if (isScanning) {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
           setHasCameraPermission(true);
 
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
-          }
-          // Stop tracks when not scanning
-          return () => {
-            stream.getTracks().forEach(track => track.stop());
           }
         } catch (error) {
           console.error('Error accessing camera:', error);
@@ -52,6 +49,12 @@ export default function Home() {
     };
 
     getCameraPermission();
+    
+    return () => {
+        if(stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    }
   }, [isScanning, toast]);
 
 
@@ -132,27 +135,34 @@ export default function Home() {
               <Card className="min-h-[480px] w-full overflow-hidden shadow-lg">
                 <CardContent className="p-0 h-full">
                   {isScanning ? (
-                    <div className='relative w-full h-[480px] flex flex-col justify-center items-center'>
-                      {hasCameraPermission === true && (
-                        <QrScanner onScanSuccess={handleScanSuccess} onScanError={handleScanError} />
-                      )}
-                      {hasCameraPermission === false && (
-                        <Alert variant="destructive" className="m-4">
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertTitle>Camera Access Required</AlertTitle>
-                          <AlertDescription>
-                            Please allow camera access to use this feature. You may need to grant permission in your browser settings.
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                      {hasCameraPermission === null && (
-                         <div className="flex items-center space-x-2">
-                           <div className="w-4 h-4 rounded-full bg-primary animate-pulse"></div>
-                           <div className="w-4 h-4 rounded-full bg-primary animate-pulse [animation-delay:0.2s]"></div>
-                           <div className="w-4 h-4 rounded-full bg-primary animate-pulse [animation-delay:0.4s]"></div>
-                           <span className="ml-2 text-muted-foreground">Requesting camera access...</span>
+                    <div className='relative w-full h-[480px] flex flex-col justify-center items-center bg-black'>
+                      <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                      <div className="absolute inset-0">
+                        {hasCameraPermission === true && (
+                          <QrScanner onScanSuccess={handleScanSuccess} onScanError={handleScanError} />
+                        )}
+                        {hasCameraPermission === false && (
+                          <div className="w-full h-full flex flex-col justify-center items-center bg-black/50">
+                            <Alert variant="destructive" className="m-4 max-w-sm">
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertTitle>Camera Access Required</AlertTitle>
+                              <AlertDescription>
+                                Please allow camera access to use this feature. You may need to grant permission in your browser settings.
+                              </AlertDescription>
+                            </Alert>
+                          </div>
+                        )}
+                        {hasCameraPermission === null && (
+                         <div className="w-full h-full flex justify-center items-center bg-black/50">
+                           <div className="flex items-center space-x-2 text-white">
+                             <div className="w-4 h-4 rounded-full bg-white animate-pulse"></div>
+                             <div className="w-4 h-4 rounded-full bg-white animate-pulse [animation-delay:0.2s]"></div>
+                             <div className="w-4 h-4 rounded-full bg-white animate-pulse [animation-delay:0.4s]"></div>
+                             <span className="ml-2">Requesting camera access...</span>
+                           </div>
                          </div>
-                      )}
+                        )}
+                      </div>
 
                       <Button variant="destructive" className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10" onClick={() => setIsScanning(false)}>Stop Scanning</Button>
                     </div>
