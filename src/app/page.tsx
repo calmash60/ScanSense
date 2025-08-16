@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { QrCode, Zap, Camera, AlertCircle } from 'lucide-react';
+import { QrCode, Zap, Camera, AlertCircle, LogOut } from 'lucide-react';
 import type { QrCodeSuccessCallback } from 'html5-qrcode';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { getCategory } from './actions';
@@ -13,10 +14,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth, AuthProvider } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 
 
-export default function Home() {
-  const [history, setHistory] = useLocalStorage<Scan[]>('scan-history', []);
+function HomeComponent() {
+  const { user, loading, signOut } = useAuth();
+  const router = useRouter();
+  const [history, setHistory] = useLocalStorage<Scan[]>(`scan-history-${user?.uid || ''}`, []);
   const [activeScan, setActiveScan] = useState<Scan | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isCategorizing, setIsCategorizing] = useState(false);
@@ -24,6 +29,13 @@ export default function Home() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
 
   useEffect(() => {
     let stream: MediaStream;
@@ -57,6 +69,10 @@ export default function Home() {
     }
   }, [isScanning, toast]);
 
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/login');
+  };
 
   const handleScanSuccess: QrCodeSuccessCallback = async (decodedText) => {
     setIsScanning(false);
@@ -117,14 +133,32 @@ export default function Home() {
     </div>
   );
 
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex items-center space-x-2">
+          <div className="w-4 h-4 rounded-full bg-primary animate-pulse"></div>
+          <div className="w-4 h-4 rounded-full bg-primary animate-pulse [animation-delay:0.2s]"></div>
+          <div className="w-4 h-4 rounded-full bg-primary animate-pulse [animation-delay:0.4s]"></div>
+          <span className="ml-2">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
-        <div className="max-w-7xl mx-auto flex items-center gap-3 p-4 sm:p-6">
-          <QrCode className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight text-primary">
-            ScanSense
-          </h1>
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 p-4 sm:p-6">
+          <div className="flex items-center gap-3">
+            <QrCode className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold tracking-tight text-primary">
+              ScanSense
+            </h1>
+          </div>
+          <Button variant="ghost" onClick={handleSignOut}>
+            <LogOut className="mr-2 h-4 w-4" /> Sign Out
+          </Button>
         </div>
       </header>
 
@@ -189,3 +223,13 @@ export default function Home() {
     </div>
   );
 }
+
+export default function Home() {
+  return (
+    <AuthProvider>
+      <HomeComponent />
+    </AuthProvider>
+  );
+}
+
+    
