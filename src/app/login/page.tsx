@@ -24,7 +24,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push('/');
+      router.push('/scanner');
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -89,5 +89,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    
