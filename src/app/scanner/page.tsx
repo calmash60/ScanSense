@@ -24,7 +24,7 @@ function ScannerComponent() {
   const [history, setHistory] = useLocalStorage<Scan[]>(`scan-history-${user?.uid || ''}`, []);
   const [activeScan, setActiveScan] = useState<Scan | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [isCategorizing, setIsCategorizing] = useState(isCategorizing);
+  const [isCategorizing, setIsCategorizing] = useState(false);
   const [isResultOpen, setIsResultOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
