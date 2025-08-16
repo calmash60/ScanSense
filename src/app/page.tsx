@@ -48,11 +48,11 @@ export default function WelcomePage() {
                                 <CardContent className="p-0">
                                     <Image 
                                         src="https://placehold.co/600x400.png"
-                                        alt="ScanSense app screenshot"
+                                        alt="A person scanning a QR code with their phone"
                                         width={600}
                                         height={400}
                                         className="object-cover"
-                                        data-ai-hint="app screenshot"
+                                        data-ai-hint="person scanning qr code"
                                     />
                                 </CardContent>
                             </Card>
