@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { QrCode, Zap } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { QrCode, Zap, Camera, AlertCircle } from 'lucide-react';
 import type { QrCodeSuccessCallback } from 'html5-qrcode';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { getCategory } from './actions';
@@ -11,6 +11,9 @@ import ScanHistory from '@/components/scan-history';
 import ScanResultDialog from '@/components/scan-result-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
+
 
 export default function Home() {
   const [history, setHistory] = useLocalStorage<Scan[]>('scan-history', []);
@@ -18,6 +21,39 @@ export default function Home() {
   const [isScanning, setIsScanning] = useState(false);
   const [isCategorizing, setIsCategorizing] = useState(false);
   const [isResultOpen, setIsResultOpen] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      if (isScanning) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          setHasCameraPermission(true);
+
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+          // Stop tracks when not scanning
+          return () => {
+            stream.getTracks().forEach(track => track.stop());
+          }
+        } catch (error) {
+          console.error('Error accessing camera:', error);
+          setHasCameraPermission(false);
+          toast({
+            variant: 'destructive',
+            title: 'Camera Access Denied',
+            description: 'Please enable camera permissions in your browser settings to use this app.',
+          });
+        }
+      }
+    };
+
+    getCameraPermission();
+  }, [isScanning, toast]);
+
 
   const handleScanSuccess: QrCodeSuccessCallback = async (decodedText) => {
     setIsScanning(false);
@@ -66,7 +102,7 @@ export default function Home() {
   const StartScanningButton = () => (
     <div className="flex flex-col items-center justify-center h-full gap-6 p-10 text-center bg-accent/10 rounded-lg border-2 border-dashed border-accent/30">
         <div className="p-4 rounded-full bg-primary text-primary-foreground shadow-lg">
-            <QrCode className="w-10 h-10" />
+            <Camera className="w-10 h-10" />
         </div>
         <div className='space-y-2'>
             <h2 className="text-2xl font-bold text-primary/90">Ready to Scan</h2>
@@ -96,9 +132,29 @@ export default function Home() {
               <Card className="min-h-[480px] w-full overflow-hidden shadow-lg">
                 <CardContent className="p-0 h-full">
                   {isScanning ? (
-                    <div className='relative w-full h-[480px]'>
+                    <div className='relative w-full h-[480px] flex flex-col justify-center items-center'>
+                      {hasCameraPermission === true && (
                         <QrScanner onScanSuccess={handleScanSuccess} onScanError={handleScanError} />
-                        <Button variant="destructive" className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10" onClick={() => setIsScanning(false)}>Stop Scanning</Button>
+                      )}
+                      {hasCameraPermission === false && (
+                        <Alert variant="destructive" className="m-4">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertTitle>Camera Access Required</AlertTitle>
+                          <AlertDescription>
+                            Please allow camera access to use this feature. You may need to grant permission in your browser settings.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                      {hasCameraPermission === null && (
+                         <div className="flex items-center space-x-2">
+                           <div className="w-4 h-4 rounded-full bg-primary animate-pulse"></div>
+                           <div className="w-4 h-4 rounded-full bg-primary animate-pulse [animation-delay:0.2s]"></div>
+                           <div className="w-4 h-4 rounded-full bg-primary animate-pulse [animation-delay:0.4s]"></div>
+                           <span className="ml-2 text-muted-foreground">Requesting camera access...</span>
+                         </div>
+                      )}
+
+                      <Button variant="destructive" className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10" onClick={() => setIsScanning(false)}>Stop Scanning</Button>
                     </div>
                   ) : (
                     <StartScanningButton />
