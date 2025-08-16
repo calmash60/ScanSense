@@ -22,6 +22,20 @@ export default function WelcomePage() {
     }, [user, loading, router]);
 
 
+    if (loading || user) {
+        return (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 rounded-full bg-primary animate-pulse"></div>
+              <div className="w-4 h-4 rounded-full bg-primary animate-pulse [animation-delay:0.2s]"></div>
+              <div className="w-4 h-4 rounded-full bg-primary animate-pulse [animation-delay:0.4s]"></div>
+              <span className="ml-2">Loading...</span>
+            </div>
+          </div>
+        );
+    }
+
+
     return (
         <div className="flex flex-col min-h-screen bg-background">
             <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
@@ -57,16 +71,9 @@ export default function WelcomePage() {
                             </Button>
                         </div>
                         <div>
-                            <Card className="shadow-2xl overflow-hidden">
+                            <Card className="shadow-2xl overflow-hidden aspect-square flex items-center justify-center bg-primary/5 border-2 border-dashed">
                                 <CardContent className="p-0">
-                                    <Image 
-                                        src="https://placehold.co/600x400.png"
-                                        alt="A person scanning a QR code with their phone"
-                                        width={600}
-                                        height={400}
-                                        className="object-cover"
-                                        data-ai-hint="person scanning qr code"
-                                    />
+                                    <QrCode className="w-48 h-48 text-primary/30" strokeWidth={1} />
                                 </CardContent>
                             </Card>
                         </div>
