@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ export default function WelcomePage() {
                                 Scan, categorize, and manage QR codes effortlessly. ScanSense uses AI to intelligently understand the content of any QR code, making your life easier.
                             </p>
                             <Button asChild size="lg">
-                                <Link href="/login">
+                                <Link href="/scanner">
                                     Get Started <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                             </Button>
