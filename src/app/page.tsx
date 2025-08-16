@@ -6,9 +6,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { QrCode, LogIn, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from 'next/image';
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 
 export default function WelcomePage() {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loading && user) {
+            router.push('/scanner');
+        }
+    }, [user, loading, router]);
+
+
     return (
         <div className="flex flex-col min-h-screen bg-background">
             <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">

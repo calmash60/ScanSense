@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth, AuthProvider } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 
 
@@ -24,7 +24,7 @@ function ScannerComponent() {
   const [history, setHistory] = useLocalStorage<Scan[]>(`scan-history-${user?.uid || ''}`, []);
   const [activeScan, setActiveScan] = useState<Scan | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [isCategorizing, setIsCategorizing] = useState(false);
+  const [isCategorizing, setIsCategorizing] = useState(isCategorizing);
   const [isResultOpen, setIsResultOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -226,8 +226,6 @@ function ScannerComponent() {
 
 export default function ScannerPage() {
   return (
-    <AuthProvider>
-      <ScannerComponent />
-    </AuthProvider>
+    <ScannerComponent />
   );
 }
